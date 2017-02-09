@@ -30,4 +30,4 @@ echo "INFO: Setting up watches for ${watches[@]}"
   kill -TERM $nginx_pid
 } &
 
-wait $nginx_pid || exit 1
+wait -n $nginx_pid
