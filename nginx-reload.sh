@@ -1,31 +1,31 @@
 #!/bin/bash
 
 {
-  echo "Starting nginx"
+  echo "INFO: Starting nginx"
   nginx "$@" && exit 1
 } &
 
 nginx_pid=$!
 
-watches=${WATCH_PATHS:-"/etc/nginx/nginx.conf"}
+watches=${WATCH_PATHS:-"/etc/nginx/"}
 
-echo "Setting up watches for ${watches[@]}"
+echo "INFO: Setting up watches for ${watches[@]}"
 
 {
-  echo $nginx_pid
-  inotifywait -e modify,move,create,delete --timefmt '%d/%m/%y %H:%M' -m --format '%T' \
-  ${watches[@]} | while read date time; do
+  echo "INFO: nginx PID = $nginx_pid"
+  inotifywait -r -q -e modify,move,create,delete --timefmt '%d/%m/%y %H:%M' -m --format '%T %f' \
+  ${watches[@]} | while read date time fname; do
 
-    echo "At ${time} on ${date}, config file update detected"
+    echo "INFO: At ${time} on ${date}, config file ${fname} changed"
     nginx -t
     if [ $? -ne 0 ]; then
       echo "ERROR: New configuration is invalid!!"
     else
-      echo "New configuration is valid, reloading nginx"
+      echo "INFO: New configuration is valid, reloading nginx"
       nginx -s reload
     fi
   done
-  echo "inotifywait failed, killing nginx"
+  echo "INFO: inotifywait failed, killing nginx"
 
   kill -TERM $nginx_pid
 } &

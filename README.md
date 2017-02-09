@@ -92,7 +92,33 @@ spec:
           secretName: jenkins-tls
 ```
 
+## Felix' Test Run
+Build:
+```
+docker build -t nginx-reload:1.10-alpine .
+```
+
+Get default configs:
+```
+docker run -it --rm --name test nginx-reload:1.10-alpine
+# get around "invalid symlink" aborting cp
+# by removing symlinks in target dir
+docker exec test cp -R /etc/nginx /tmp/conf
+docker exec test find /tmp/conf -type l -exec rm -f {} \;
+docker cp test:/tmp/conf/ .
+echo 'conf' >> .dockerignore
+```
+
+Test reload:
+```
+docker run -it --rm --name test -v $(pwd)/conf:/etc/nginx nginx-reload:1.10-alpine
+vi conf/conf.d/default.conf
+docker exec test netstat -pant
+```
+
+
 ## Contact
 
 I'd love to hear your feedback! If you have any suggestions or experience issues with this NGINX configuration, please create an issue or send a pull request on Github.
 You can contact me directly via [ross@kukulinski.com](mailto:ross@kukulinski.com).
+
