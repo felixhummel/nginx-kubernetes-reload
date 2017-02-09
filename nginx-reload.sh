@@ -13,10 +13,9 @@ echo "INFO: Setting up watches for ${watches[@]}"
 
 {
   echo "INFO: nginx PID = $nginx_pid"
-  inotifywait -r -q -e modify,move,create,delete --timefmt '%d/%m/%y %H:%M' -m --format '%T %f' \
-  ${watches[@]} | while read date time fname; do
-
-    echo "INFO: At ${time} on ${date}, config file ${fname} changed"
+  inotifywait -r -q -e modify,move,create,delete --timefmt '%y-%m-%d %H:%M:%S' -m --format '%e %T %f' \
+  ${watches[@]} | while read event date time fname; do
+    echo "INFO: At ${time} on ${date}, config file ${fname} changed (event=${event})"
     nginx -t
     if [ $? -ne 0 ]; then
       echo "ERROR: New configuration is invalid!!"
