@@ -1,0 +1,6 @@
+[submodule "sregex"]
+	path = sregex
+	url = https://github.com/openresty/sregex.git
+[submodule "replace-filter-nginx-module"]
+	path = replace-filter-nginx-module
+	url = https://github.com/openresty/replace-filter-nginx-module.git

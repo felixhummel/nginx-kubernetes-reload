@@ -1,8 +1,9 @@
 #!/bin/bash
+set -x
 
 {
   echo "INFO: Starting nginx"
-  nginx "$@" && exit 1
+  nginx -g 'daemon off;' "$@" && exit 23
 } &
 
 nginx_pid=$!
@@ -13,7 +14,7 @@ echo "INFO: Setting up watches for ${watches[@]}"
 
 {
   echo "INFO: nginx PID = $nginx_pid"
-  inotifywait -r -q -e modify,move,create,delete --timefmt '%y-%m-%d %H:%M:%S' -m --format '%e %T %f' \
+  inotifywait -m -r -e modify,move,create,delete --timefmt '%y-%m-%d %H:%M:%S' -m --format '%e %T %f' \
   ${watches[@]} | while read event date time fname; do
     echo "INFO: At ${time} on ${date}, config file ${fname} changed (event=${event})"
     nginx -t
